@@ -13,7 +13,6 @@ module.exports = {
     "./src/CustomerDeliveryNoticeView.js",
     "./src/DailyWorkReport.js",
     "./src/DailyWorkReportView.js",
-    "./src/LoginPage.js",
   ],
   theme: {
     extend: {},
