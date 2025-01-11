@@ -155,21 +155,21 @@ const CustomerOrder = () => {
             <table className="w-full min-w-[1200px]">
               <thead className="bg-gray-100 sticky top-0">
                 <tr>
-                  <th className="p-5 text-left">#</th>
+                  <th className="px-6 py-4 text-left">#</th>
                   {columns.map((col) => (
-                    <th key={col.key} className="p-2 text-left">
+                    <th key={col.key} className="px-6 py-4 text-left">
                       {col.label}
                     </th>
                   ))}
-                  <th className="p-5 text-left">Operation</th>
+                  <th className="px-6 py-4 text-left">Operation</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredData.map((row, index) => (
                   <tr key={row.id} className="border-t hover:bg-gray-50">
-                    <td className="p-3">{index + 1}</td>
+                    <td className="p-5">{index + 1}</td>
                     {columns.map((col) => (
-                      <td key={col.key} className="p-2">
+                      <td key={col.key} className="px-6 py-3">
                         {editingId === row.id ? (
                           <input
                             type="text"
@@ -177,7 +177,7 @@ const CustomerOrder = () => {
                             onChange={(e) =>
                               handleInputChange(row.id, col.key, e.target.value)
                             }
-                            className="border p-1 w-full"
+                            className="border p-2 w-full"
                           />
                         ) : (
                           // Check if the value is an object, if so, stringify it
@@ -187,18 +187,18 @@ const CustomerOrder = () => {
                         )}
                       </td>
                     ))}
-                    <td className="p-4">
+                    <td className="px-6 py-3">
                       {editingId === row.id ? (
                         <button
                           onClick={() => handleSave(row.id)}
-                          className="bg-green-500 text-white px-2 rounded"
+                          className="bg-green-500 text-white px-4 py-2 rounded"
                         >
                           Save
                         </button>
                       ) : (
                         <button
                           onClick={() => handleEdit(row.id)}
-                          className="bg-yellow-500 text-white px-2 rounded"
+                          className="bg-yellow-500 text-white px-4 py-2 rounded"
                         >
                           Edit
                         </button>

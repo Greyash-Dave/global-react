@@ -5,12 +5,10 @@ import './index.css';
 import CustomerOrder from './CustomerOrder';
 import MaterialInquiry from './MaterialInquiry';
 
-import { BrowserRouter as Router} from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import MaterialReplenishment from "./MaterialReplenishment";
 import CustomerDeliveryNotice from "./CustomerDeliveryNotice";
 import DailyWorkReport from "./DailyWorkReport";
-
-
 function Sidebar({ showSidebar, onToggleTheme, onLinkClick, activePage }) {
   return (
     <div className={`sidebar ${showSidebar ? "show-sidebar" : ""}`} id="sidebar">
@@ -28,48 +26,48 @@ function Sidebar({ showSidebar, onToggleTheme, onLinkClick, activePage }) {
           <h4 className="sidebar__title">MANAGER</h4>
           <ul className="sidebar__list">
             <li
-              className={`sidebar__link ${activePage === "dashboard" ? "active-link" : ""}`}
-              onClick={() => onLinkClick("dashboard")}
+              className={`sidebar__link ${activePage === "SupplierInfo" ? "active-link" : ""}`}
+              onClick={() => onLinkClick("SupplierInfo")}
             >
               <i className="ri-dashboard-line"></i>
-              <span>Dashboard</span>
+              <span>Supplier Info</span>
             </li>
             <li
-              className={`sidebar__link ${activePage === "wallet" ? "active-link" : ""}`}
-              onClick={() => onLinkClick("wallet")}
+              className={`sidebar__link ${activePage === "Customer Order" ? "active-link" : ""}`}
+              onClick={() => onLinkClick("Customer Order")}
             >
               <i className="ri-wallet-line"></i>
-              <span>My Wallet</span>
+              <span>Customer Order</span>
             </li>
             <li
-              className={`sidebar__link ${activePage === "calendar" ? "active-link" : ""}`}
-              onClick={() => onLinkClick("calendar")}
+              className={`sidebar__link ${activePage === "Material Inquiry" ? "active-link" : ""}`}
+              onClick={() => onLinkClick("Material Inquiry")}
             >
               <i className="ri-calendar-line"></i>
-              <span>Calendar</span>
+              <span>Material Inquiry</span>
             </li>
             <li
-              className={`sidebar__link ${activePage === "transactions" ? "active-link" : ""}`}
-              onClick={() => onLinkClick("transactions")}
+              className={`sidebar__link ${activePage === "Material Replenishment" ? "active-link" : ""}`}
+              onClick={() => onLinkClick("Material Replenishment")}
             >
               <i className="ri-exchange-line"></i>
-              <span>Recent Transactions</span>
+              <span>Material Replenishment</span>
             </li>
             <li
-              className={`sidebar__link ${activePage === "statistics" ? "active-link" : ""}`}
-              onClick={() => onLinkClick("statistics")}
+              className={`sidebar__link ${activePage === "Customer Delivery" ? "active-link" : ""}`}
+              onClick={() => onLinkClick("Customer Delivery")}
             >
               <i className="ri-bar-chart-line"></i>
-              <span>Statistics</span>
+              <span>Customer Delivery </span>
             </li>
           </ul>
           <ul className="sidebar__actions">
             <li
-              className={`sidebar__link ${activePage === "settings" ? "active-link" : ""}`}
-              onClick={() => onLinkClick("settings")}
+              className={`sidebar__link ${activePage === "DAILY WORK" ? "active-link" : ""}`}
+              onClick={() => onLinkClick("DAILY WORK")}
             >
               <i className="ri-settings-2-line"></i>
-              <span>Settings</span>
+              <span>DAILY WORK REPORT</span>
             </li>
             <li
               className={`sidebar__link ${activePage === "messages" ? "active-link" : ""}`}
@@ -97,13 +95,13 @@ function Sidebar({ showSidebar, onToggleTheme, onLinkClick, activePage }) {
   );
 }
 
-function Header({ onToggleSidebar }) {
+function Header({ onToggleSidebar, activePageName }) {
   return (
     <div className="header" id="header">
       <div className="header__container">
         <div className="header__logo">
           <i className="ri-cloud-fill"></i>
-          <span>Cloud</span>
+          <span>{activePageName}</span> {/* Display active page name */}
         </div>
         <button className="header__toggle" id="header-toggle" onClick={onToggleSidebar}>
           ☰
@@ -112,11 +110,10 @@ function Header({ onToggleSidebar }) {
     </div>
   );
 }
-
 function App() {
   const [darkTheme, setDarkTheme] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [activePage, setActivePage] = useState("dashboard");
+  const [activePage, setActivePage] = useState("SupplierInfo");
 
   const timeoutRef = useRef(null);
 
@@ -136,6 +133,11 @@ function App() {
   };
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem("selected-theme");
+    setDarkTheme(savedTheme === "dark");
+  }, []);
+
+  useEffect(() => {
     if (setShowSidebar) {
       timeoutRef.current = setTimeout(() => {
         setShowSidebar(true);  // Close sidebar after timeout
@@ -153,24 +155,19 @@ function App() {
     };
   }, [showSidebar]);
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("selected-theme");
-    setDarkTheme(savedTheme === "dark");
-  }, []);
-
   const renderContent = () => {
     switch (activePage) {
-      case "dashboard":
+      case "SupplierInfo":
         return <SupplierTable />;
-      case "wallet":
+      case "Customer Order":
         return <CustomerOrder />;
-      case "calendar":
+      case "Material Inquiry":
         return <MaterialInquiry />;
-      case "transactions":
+      case "Material Replenishment":
         return <MaterialReplenishment />;
-      case "statistics":
+      case "Customer Delivery":
         return <CustomerDeliveryNotice />;
-      case "settings":
+      case "DAILY WORK":
         return <DailyWorkReport />;
       case "messages":
         return <div>My Messages Content</div>;
@@ -182,25 +179,31 @@ function App() {
   };
 
   return (
-        <Router>
-          <>
-            <div className={`app ${darkTheme ? "dark-theme" : ""}`}>
-              <Sidebar
-                showSidebar={showSidebar}
-                onToggleTheme={toggleTheme}
-                onLinkClick={handleLinkClick}
-                activePage={activePage}
-              />
-              <div className={`main ${showSidebar ? "left-pd" : "full-width"}`} id="main">
-                <Header onToggleSidebar={handleSidebarToggle} />
-                <div className={`content ${showSidebar ? "left-pd" : ""}`}>
-                  {renderContent()}
-                </div>
-              </div>
+    <Router>
+      <>
+        <div className={`app ${darkTheme ? "dark-theme" : ""}`}>
+          <Sidebar
+            showSidebar={showSidebar}
+            onToggleTheme={toggleTheme}
+            onLinkClick={handleLinkClick}
+            activePage={activePage}
+          />
+          <div className={`main ${showSidebar ? "left-pd" : "full-width"}`} id="main">
+            {/* Pass the capitalized active page name to the Header */}
+            <Header 
+              onToggleSidebar={handleSidebarToggle} 
+              activePageName={activePage.charAt(0).toUpperCase() + activePage.slice(1)} // Capitalizing first letter of active page
+            />
+            <div className={`content ${showSidebar ? "left-pd" : ""}`}>
+              {renderContent()}
             </div>
-          </>
-        </Router>
-      );
+          </div>
+        </div>
+      </>
+    </Router>
+  );
 }
 
 export default App;
+
+
