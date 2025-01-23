@@ -5,11 +5,13 @@ import './index.css';
 import CustomerOrder from './CustomerOrder';
 import MaterialInquiry from './MaterialInquiry';
 
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Navigate } from "react-router-dom";
 import MaterialReplenishment from "./MaterialReplenishment";
 import CustomerDeliveryNotice from "./CustomerDeliveryNotice";
 import DailyWorkReport from "./DailyWorkReport";
-function Sidebar({ showSidebar, onToggleTheme, onLinkClick, activePage }) {
+import LoginPage from "./LoginPage";
+
+function Sidebar({ showSidebar, onToggleTheme, onLinkClick, activePage, onLogout, userInfo }) {
   return (
     <div className={`sidebar ${showSidebar ? "show-sidebar" : ""}`} id="sidebar">
       <div className="sidebar__container">
@@ -18,12 +20,12 @@ function Sidebar({ showSidebar, onToggleTheme, onLinkClick, activePage }) {
             <img src="/image.png" alt="profile" />
           </div>
           <div className="sidebar__info">
-            <h3>Mugil</h3>
-            <span>mugil9451@email.com</span>
+            <h3>{userInfo.name}</h3>
+            <span>{userInfo.email || userInfo.role}</span>
           </div>
         </div>
         <nav className="sidebar__content">
-          <h4 className="sidebar__title">MANAGER</h4>
+          <h4 className="sidebar__title">{userInfo.role.toUpperCase()}</h4>          
           <ul className="sidebar__list">
             <li
               className={`sidebar__link ${activePage === "SupplierInfo" ? "active-link" : ""}`}
@@ -81,10 +83,7 @@ function Sidebar({ showSidebar, onToggleTheme, onLinkClick, activePage }) {
               <i className="ri-moon-line"></i>
               <span>Theme</span>
             </li>
-            <li
-              className={`sidebar__link ${activePage === "logout" ? "active-link" : ""}`}
-              onClick={() => onLinkClick("logout")}
-            >
+            <li className="sidebar__link" onClick={onLogout}>
               <i className="ri-logout-box-line"></i>
               <span>Log Out</span>
             </li>
@@ -101,7 +100,7 @@ function Header({ onToggleSidebar, activePageName }) {
       <div className="header__container">
         <div className="header__logo">
           <i className="ri-cloud-fill"></i>
-          <span>{activePageName}</span> {/* Display active page name */}
+          <span>{activePageName}</span>
         </div>
         <button className="header__toggle" id="header-toggle" onClick={onToggleSidebar}>
           ☰
@@ -110,12 +109,53 @@ function Header({ onToggleSidebar, activePageName }) {
     </div>
   );
 }
+
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [darkTheme, setDarkTheme] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [activePage, setActivePage] = useState("SupplierInfo");
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    email: '',
+    role: ''
+  });
 
   const timeoutRef = useRef(null);
+
+  const handleLogin = (loginUserInfo) => {
+    setIsLoggedIn(true);
+    setUserInfo({
+      name: loginUserInfo.name,
+      email: loginUserInfo.email || '',
+      role: loginUserInfo.role
+    });
+    localStorage.setItem('userInfo', JSON.stringify(loginUserInfo));
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserInfo({
+      name: '',
+      email: '',
+      role: ''
+    });
+    localStorage.removeItem('userInfo');
+    setActivePage("SupplierInfo");
+  };
+
+  useEffect(() => {
+    const storedUserInfo = localStorage.getItem('userInfo');
+    if (storedUserInfo) {
+      const parsedUserInfo = JSON.parse(storedUserInfo);
+      setIsLoggedIn(true);
+      setUserInfo({
+        name: parsedUserInfo.name,
+        email: parsedUserInfo.email || '',
+        role: parsedUserInfo.role
+      });
+    }
+  }, []);
 
   const handleSidebarToggle = () => {
     setShowSidebar((prev) => !prev);
@@ -135,13 +175,19 @@ function App() {
   useEffect(() => {
     const savedTheme = localStorage.getItem("selected-theme");
     setDarkTheme(savedTheme === "dark");
+
+    // Check if user was previously logged in
+    const storedUserInfo = localStorage.getItem('userInfo');
+    if (storedUserInfo) {
+      setIsLoggedIn(true);
+    }
   }, []);
 
   useEffect(() => {
-    if (setShowSidebar) {
+    if (showSidebar) {
       timeoutRef.current = setTimeout(() => {
-        setShowSidebar(true);  // Close sidebar after timeout
-      }, 5000);  // 5 seconds timeout
+        setShowSidebar(true);
+      }, 5000);
     } else {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -171,39 +217,39 @@ function App() {
         return <DailyWorkReport />;
       case "messages":
         return <div>My Messages Content</div>;
-      case "logout":
-        return <div>Log Out Content</div>;
       default:
         return <div>Dashboard Content</div>;
     }
   };
 
+  // If not logged in, show login page
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <Router>
-      <>
-        <div className={`app ${darkTheme ? "dark-theme" : ""}`}>
-          <Sidebar
-            showSidebar={showSidebar}
-            onToggleTheme={toggleTheme}
-            onLinkClick={handleLinkClick}
-            activePage={activePage}
+      <div className={`app ${darkTheme ? "dark-theme" : ""}`}>
+        <Sidebar
+          showSidebar={showSidebar}
+          onToggleTheme={toggleTheme}
+          onLinkClick={handleLinkClick}
+          activePage={activePage}
+          onLogout={handleLogout}
+          userInfo={userInfo}
+        />
+        <div className={`main ${showSidebar ? "left-pd" : "full-width"}`} id="main">
+          <Header 
+            onToggleSidebar={handleSidebarToggle} 
+            activePageName={activePage.charAt(0).toUpperCase() + activePage.slice(1)}
           />
-          <div className={`main ${showSidebar ? "left-pd" : "full-width"}`} id="main">
-            {/* Pass the capitalized active page name to the Header */}
-            <Header 
-              onToggleSidebar={handleSidebarToggle} 
-              activePageName={activePage.charAt(0).toUpperCase() + activePage.slice(1)} // Capitalizing first letter of active page
-            />
-            <div className={`content ${showSidebar ? "left-pd" : ""}`}>
-              {renderContent()}
-            </div>
+          <div className={`content ${showSidebar ? "left-pd" : ""}`}>
+            {renderContent()}
           </div>
         </div>
-      </>
+      </div>
     </Router>
   );
 }
 
 export default App;
-
-
